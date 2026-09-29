@@ -13,7 +13,7 @@ const state = {
   files: [],
   conditions: [],
   scenarios: [],
-  boq: [],
+  boq: [],\n  annotations: [],\n  scenarioMetrics: [],\n  planTool: "wall",\n  planStart: null,\n  selectedFloorId: null,\n  selectedScenarioId: null,
   lang: localStorage.getItem("respace-lang") || "ar",
   page: "dashboard"
 };
@@ -23,7 +23,7 @@ const t = {
     authTagline:"مساحة عمل ذكية للمهندس المعماري لتوثيق وتحليل وإعادة تخطيط وتجديد المباني القائمة.",
     welcome:"مرحباً بك",authHint:"سجّل الدخول للوصول إلى مشاريعك.",email:"البريد الإلكتروني",password:"كلمة المرور",login:"تسجيل الدخول",or:"أو",createAccount:"إنشاء حساب جديد",
     safetyNote:"المنصة أداة تخطيط أولي. أي تعديل إنشائي أو MEP أو متطلبات سلامة يحتاج مراجعة مختص معتمد.",
-    dashboard:"لوحة المشاريع",project:"المشروع",floors:"الطوابق والوحدات",plansFiles:"المخططات والملفات",condition:"تقييم الحالة",scenarios:"سيناريوهات التقسيم",boq:"BOQ والتكلفة",logout:"تسجيل الخروج",workspace:"مساحة العمل الشخصية",currentProject:"المشروع الحالي:",
+    dashboard:"لوحة المشاريع",project:"المشروع",floors:"الطوابق والوحدات",plansFiles:"المخططات والملفات",planWorkspace:"مساحة المخطط",condition:"تقييم الحالة",scenarios:"سيناريوهات التقسيم",boq:"BOQ والتكلفة",logout:"تسجيل الخروج",workspace:"مساحة العمل الشخصية",currentProject:"المشروع الحالي:",
     myProjects:"مشاريعي",newProject:"مشروع جديد",projectName:"اسم المشروع",city:"المدينة",buildingType:"نوع المبنى",yearBuilt:"سنة البناء",landArea:"مساحة الأرض",builtArea:"المساحة المبنية",save:"حفظ",cancel:"إلغاء",open:"فتح",status:"الحالة",
     noProjects:"لا توجد مشاريع بعد. أنشئ أول مشروع للبدء.",floorsCount:"الطوابق",unitsCount:"الوحدات",filesCount:"الملفات",scenariosCount:"السيناريوهات",
     projectInfo:"بيانات المشروع",notes:"ملاحظات",floorNumber:"رقم الطابق",floorName:"اسم الطابق",area:"المساحة",addFloor:"إضافة طابق",unitNumber:"رقم الوحدة",unitType:"نوع الوحدة",bedrooms:"غرف النوم",bathrooms:"الحمامات",occupancy:"الإشغال",addUnit:"إضافة وحدة",
@@ -36,7 +36,7 @@ const t = {
     authTagline:"A smart workspace for architects to document, analyze, reconfigure and renovate existing buildings.",
     welcome:"Welcome",authHint:"Sign in to access your projects.",email:"Email",password:"Password",login:"Sign in",or:"or",createAccount:"Create new account",
     safetyNote:"This platform is a planning tool. Structural, MEP and life-safety changes require review by qualified professionals.",
-    dashboard:"Projects Dashboard",project:"Project",floors:"Floors & Units",plansFiles:"Plans & Files",condition:"Condition Assessment",scenarios:"Reconfiguration Scenarios",boq:"BOQ & Cost",logout:"Sign out",workspace:"Personal Workspace",currentProject:"Current project:",
+    dashboard:"Projects Dashboard",project:"Project",floors:"Floors & Units",plansFiles:"Plans & Files",planWorkspace:"Plan Workspace",condition:"Condition Assessment",scenarios:"Reconfiguration Scenarios",boq:"BOQ & Cost",logout:"Sign out",workspace:"Personal Workspace",currentProject:"Current project:",
     myProjects:"My Projects",newProject:"New Project",projectName:"Project name",city:"City",buildingType:"Building type",yearBuilt:"Year built",landArea:"Land area",builtArea:"Built-up area",save:"Save",cancel:"Cancel",open:"Open",status:"Status",
     noProjects:"No projects yet. Create your first project to begin.",floorsCount:"Floors",unitsCount:"Units",filesCount:"Files",scenariosCount:"Scenarios",
     projectInfo:"Project Information",notes:"Notes",floorNumber:"Floor number",floorName:"Floor name",area:"Area",addFloor:"Add Floor",unitNumber:"Unit number",unitType:"Unit type",bedrooms:"Bedrooms",bathrooms:"Bathrooms",occupancy:"Occupancy",addUnit:"Add Unit",
@@ -100,7 +100,7 @@ async function loadProjectData(){
   state.files=(await supabase.from("project_files").select("*").eq("project_id",pid).order("created_at",{ascending:false})).data||[];
   state.conditions=(await supabase.from("condition_items").select("*").eq("project_id",pid).order("created_at",{ascending:false})).data||[];
   state.scenarios=(await supabase.from("scenarios").select("*").eq("project_id",pid).order("created_at",{ascending:false})).data||[];
-  state.boq=(await supabase.from("boq_items").select("*").eq("project_id",pid).order("created_at",{ascending:false})).data||[];
+  state.boq=(await supabase.from("boq_items").select("*").eq("project_id",pid).order("created_at",{ascending:false})).data||[];\n  state.annotations=(await supabase.from("plan_annotations").select("*").eq("project_id",pid).order("created_at")).data||[];\n  const scenarioIds=state.scenarios.map(s=>s.id);\n  state.scenarioMetrics=scenarioIds.length?(await supabase.from("scenario_metrics").select("*").in("scenario_id",scenarioIds)).data||[]:[];\n  if(!state.selectedFloorId && state.floors[0]) state.selectedFloorId=state.floors[0].id;
 }
 async function openProject(id){
   state.project=state.projects.find(p=>p.id===id)||null;
@@ -117,13 +117,13 @@ function requireProject(){ if(!state.project){ $("#pageContent").innerHTML='<div
 
 function render(){
   $("#currentProjectName").textContent=state.project?.name||"—";
-  const map={dashboard:"dashboard",project:"project",floors:"floors",files:"plansFiles",condition:"condition",scenarios:"scenarios",boq:"boq"};
+  const map={dashboard:"dashboard",project:"project",floors:"floors",files:"plansFiles",plan:"planWorkspace",condition:"condition",scenarios:"scenarios",boq:"boq"};
   $("#pageTitle").textContent=tr(map[state.page]||"dashboard");
   if(state.page==="dashboard") return renderDashboard();
   if(!requireProject()) return;
   if(state.page==="project") return renderProject();
   if(state.page==="floors") return renderFloors();
-  if(state.page==="files") return renderFiles();
+  if(state.page==="files") return renderFiles();\n  if(state.page==="plan") return renderPlanWorkspace();
   if(state.page==="condition") return renderConditions();
   if(state.page==="scenarios") return renderScenarios();
   if(state.page==="boq") return renderBoq();
@@ -227,6 +227,79 @@ async function uploadFile(e){
   if(error)return toast(error.message); toast(tr("uploaded")); await loadProjectData(); render();
 }
 
+
+function annotationForFloor(a){ return !state.selectedFloorId || a.floor_id===state.selectedFloorId; }
+function svgShape(a){
+  const x1=Number(a.x1),y1=Number(a.y1),x2=Number(a.x2??a.x1),y2=Number(a.y2??a.y1),w=Number(a.width||0),h=Number(a.height||0);
+  const common='data-id="'+a.id+'"';
+  if(a.annotation_type==="wall") return '<line '+common+' x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#111827" stroke-width="8" stroke-linecap="square"/>';
+  if(a.annotation_type==="door") return '<line '+common+' x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#d97706" stroke-width="6" stroke-linecap="round"/>';
+  if(a.annotation_type==="window") return '<line '+common+' x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="#0284c7" stroke-width="7" stroke-linecap="round"/>';
+  if(a.annotation_type==="column") return '<rect '+common+' x="'+x1+'" y="'+y1+'" width="'+Math.max(w,24)+'" height="'+Math.max(h,24)+'" fill="#7c3aed" opacity=".9"/>';
+  if(a.annotation_type==="wet_area") return '<rect '+common+' x="'+x1+'" y="'+y1+'" width="'+Math.max(w,30)+'" height="'+Math.max(h,30)+'" fill="#0f766e" opacity=".22" stroke="#0f766e" stroke-width="2"/>';
+  if(a.annotation_type==="room") return '<g '+common+'><rect x="'+x1+'" y="'+y1+'" width="'+Math.max(w,40)+'" height="'+Math.max(h,40)+'" fill="#84cc16" opacity=".09" stroke="#65a30d" stroke-dasharray="7 5"/><text x="'+(x1+8)+'" y="'+(y1+20)+'" font-size="14" fill="#365314">'+esc(a.label||"Room")+'</text></g>';
+  return '<circle '+common+' cx="'+x1+'" cy="'+y1+'" r="8" fill="#64748b"/>';
+}
+function renderPlanWorkspace(){
+  const floorOptions=state.floors.map(f=>'<option value="'+f.id+'" '+(state.selectedFloorId===f.id?'selected':'')+'>'+esc(f.name||("#"+f.floor_number))+'</option>').join("");
+  const anns=state.annotations.filter(annotationForFloor);
+  const shapes=anns.map(svgShape).join("");
+  $("#pageContent").innerHTML=`
+    <div class="section-head"><div><h3>${tr("planWorkspace")}</h3><small>Manual conceptual tracing · walls, openings, columns and zones</small></div>
+      <div class="actions"><select id="planFloor" class="field" style="width:auto">${floorOptions}</select><button id="clearPlanBtn" class="danger-btn">Clear floor annotations</button></div></div>
+    <div class="notice" style="margin-bottom:16px">${tr("safetyNote")} Plan tracing is conceptual and does not verify structural or regulatory feasibility.</div>
+    <div class="plan-shell">
+      <aside class="plan-tools">
+        <strong>Tools</strong>
+        <button class="tool-btn ${state.planTool==="wall"?"active":""}" data-tool="wall">Wall</button>
+        <button class="tool-btn ${state.planTool==="door"?"active":""}" data-tool="door">Door</button>
+        <button class="tool-btn ${state.planTool==="window"?"active":""}" data-tool="window">Window</button>
+        <button class="tool-btn ${state.planTool==="column"?"active":""}" data-tool="column">Column</button>
+        <button class="tool-btn ${state.planTool==="wet_area"?"active":""}" data-tool="wet_area">Wet Area</button>
+        <button class="tool-btn ${state.planTool==="room"?"active":""}" data-tool="room">Room / Zone</button>
+        <div class="plan-meta"><small>1. Select a tool<br>2. Click and drag on canvas<br>3. Release to save</small></div>
+        <div class="legend"><span><i class="dot wall"></i>Wall</span><span><i class="dot door"></i>Door</span><span><i class="dot window"></i>Window</span><span><i class="dot column"></i>Column</span><span><i class="dot wet_area"></i>Wet</span><span><i class="dot room"></i>Room</span></div>
+      </aside>
+      <div class="plan-canvas-wrap">
+        <svg id="planCanvas" class="plan-canvas" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+          <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#e5e7eb" stroke-width="1"/></pattern></defs>
+          <rect width="1000" height="560" fill="url(#grid)"/>
+          <g id="savedShapes">${shapes}</g><g id="previewShape"></g>
+        </svg>
+      </div>
+    </div>`;
+  $("#planFloor").onchange=e=>{state.selectedFloorId=e.target.value;renderPlanWorkspace();};
+  document.querySelectorAll(".tool-btn").forEach(b=>b.onclick=()=>{state.planTool=b.dataset.tool;renderPlanWorkspace();});
+  $("#clearPlanBtn").onclick=clearPlanAnnotations;
+  const canvas=$("#planCanvas");
+  canvas.addEventListener("pointerdown",planPointerDown);
+  canvas.addEventListener("pointermove",planPointerMove);
+  canvas.addEventListener("pointerup",planPointerUp);
+}
+function svgPoint(evt){
+  const svg=$("#planCanvas"),pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY; const p=pt.matrixTransform(svg.getScreenCTM().inverse()); return {x:Math.max(0,Math.min(1000,p.x)),y:Math.max(0,Math.min(560,p.y))};
+}
+function planPointerDown(e){ if(!state.selectedFloorId)return toast("Add a floor first"); state.planStart=svgPoint(e); $("#planCanvas").setPointerCapture(e.pointerId); }
+function planPointerMove(e){
+  if(!state.planStart)return; const p=svgPoint(e),s=state.planStart,preview=$("#previewShape");
+  const x=Math.min(s.x,p.x),y=Math.min(s.y,p.y),w=Math.abs(p.x-s.x),h=Math.abs(p.y-s.y);
+  if(["wall","door","window"].includes(state.planTool)){
+    const colors={wall:"#111827",door:"#d97706",window:"#0284c7"}; preview.innerHTML='<line x1="'+s.x+'" y1="'+s.y+'" x2="'+p.x+'" y2="'+p.y+'" stroke="'+colors[state.planTool]+'" stroke-width="5" stroke-dasharray="6 4"/>';
+  } else preview.innerHTML='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="#64748b" opacity=".15" stroke="#64748b" stroke-dasharray="5 4"/>';
+}
+async function planPointerUp(e){
+  if(!state.planStart)return; const p=svgPoint(e),s=state.planStart; state.planStart=null; $("#previewShape").innerHTML="";
+  const dx=Math.abs(p.x-s.x),dy=Math.abs(p.y-s.y); if(dx<4&&dy<4)return;
+  const payload={project_id:state.project.id,floor_id:state.selectedFloorId,annotation_type:state.planTool,x1:s.x,y1:s.y};
+  if(["wall","door","window"].includes(state.planTool)){payload.x2=p.x;payload.y2=p.y;}
+  else{payload.x1=Math.min(s.x,p.x);payload.y1=Math.min(s.y,p.y);payload.width:dx;payload.height:dy;if(state.planTool==="room")payload.label="Room";}
+  const {error}=await supabase.from("plan_annotations").insert(payload); if(error)return toast(error.message); await loadProjectData(); renderPlanWorkspace();
+}
+async function clearPlanAnnotations(){
+  if(!state.selectedFloorId)return; if(!confirm("Delete all annotations for this floor?"))return;
+  const {error}=await supabase.from("plan_annotations").delete().eq("project_id",state.project.id).eq("floor_id",state.selectedFloorId); if(error)return toast(error.message); await loadProjectData(); renderPlanWorkspace();
+}
+
 function renderConditions(){
   const rows=state.conditions.map(c=>`<tr><td>${esc(c.discipline)}</td><td>${esc(c.item_name)}</td><td><span class="pill ${c.condition==="good"||c.condition==="excellent"?"good":c.condition==="poor"||c.condition==="replace"?"bad":"warn"}">${esc(c.condition)}</span></td><td>${esc(c.priority)}</td><td>${esc(c.notes||"")}</td></tr>`).join("");
   $("#pageContent").innerHTML=`
@@ -244,9 +317,11 @@ function renderConditions(){
 async function addCondition(e){e.preventDefault();const p=Object.fromEntries(new FormData(e.target));p.project_id=state.project.id;const{error}=await supabase.from("condition_items").insert(p);if(error)return toast(error.message);toast(tr("created"));await loadProjectData();render();}
 
 function renderScenarios(){
+ const compareCards=state.scenarios.slice(0,2).map(s=>{const m=state.scenarioMetrics.find(x=>x.scenario_id===s.id)||{};return '<div class="card"><h3>'+esc(s.name)+'</h3><div class="metric-grid"><div class="metric"><strong>'+esc(m.units_count||"—")+'</strong><span>Units</span></div><div class="metric"><strong>'+esc(m.usable_area||"—")+'</strong><span>Usable m²</span></div><div class="metric"><strong>'+money(s.estimated_cost)+'</strong><span>Estimated cost</span></div><div class="metric"><strong>'+esc(m.mep_complexity||"—")+'</strong><span>MEP</span></div><div class="metric"><strong>'+esc(m.structural_intervention||"—")+'</strong><span>Structural</span></div><div class="metric"><strong>'+esc(s.estimated_duration_days||"—")+'</strong><span>Days</span></div></div></div>';}).join("");
+
  const rows=state.scenarios.map(s=>`<tr><td><strong>${esc(s.name)}</strong><br><small>${esc(s.description||"")}</small></td><td>${esc(s.objective||"—")}</td><td>${money(s.estimated_cost)}</td><td>${esc(s.estimated_duration_days||"—")}</td><td><span class="pill">${esc(s.status)}</span></td></tr>`).join("");
  $("#pageContent").innerHTML=`
- <div class="notice" style="margin-bottom:16px">Generated scenarios are conceptual planning tools. Structural and MEP changes require specialist review.</div>
+ <div class="notice" style="margin-bottom:16px">Generated scenarios are conceptual planning tools. Structural and MEP changes require specialist review.</div>\n <div class="compare-grid" style="margin-bottom:16px">${compareCards}</div>
  <div class="panel"><h3>${tr("newScenario")}</h3><form id="scenarioForm" class="form-grid">
   <div><label>Name</label><input name="name" class="field" required></div>
   <div><label>${tr("objective")}</label><select name="objective" class="field"><option>Maximum Units</option><option>Minimum Renovation Cost</option><option>Minimum Structural Changes</option><option>Best Space Efficiency</option><option>Balanced Layout</option></select></div>
