@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#111827" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
   <title>ReSpace Architect</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div id="toast" class="toast"></div>
@@ -16,10 +16,11 @@
   <section id="authView" class="auth-shell">
     <div class="brand-panel">
       <div class="brand-mark">R</div>
+      <div class="brand-kicker">EXISTING BUILDING INTELLIGENCE</div>
       <h1>ReSpace Architect</h1>
       <p data-i18n="authTagline">مساحة عمل ذكية للمهندس المعماري لتوثيق وتحليل وإعادة تخطيط وتجديد المباني القائمة.</p>
       <div class="feature-pills">
-        <span>Existing Buildings</span><span>Reconfiguration</span><span>Renovation</span><span>BOQ</span>
+        <span>Existing Buildings</span><span>Plan Workspace</span><span>Reconfiguration</span><span>Renovation</span><span>BOQ</span>
       </div>
     </div>
     <div class="auth-card">
@@ -28,17 +29,17 @@
           <h2 data-i18n="welcome">مرحباً بك</h2>
           <p data-i18n="authHint">سجّل الدخول للوصول إلى مشاريعك.</p>
         </div>
-        <button id="langAuthBtn" class="ghost-btn">EN</button>
+        <button id="langAuthBtn" class="ghost-btn" type="button">EN</button>
       </div>
       <form id="authForm">
         <label data-i18n="email">البريد الإلكتروني</label>
-        <input id="email" type="email" required autocomplete="email" placeholder="name@example.com" />
+        <input id="email" type="email" required autocomplete="email" placeholder="name@example.com">
         <label data-i18n="password">كلمة المرور</label>
-        <input id="password" type="password" required minlength="6" autocomplete="current-password" />
-        <button id="loginBtn" class="primary-btn" type="submit" data-i18n="login">تسجيل الدخول</button>
+        <input id="password" type="password" required minlength="6" autocomplete="current-password">
+        <button class="primary-btn wide" type="submit" data-i18n="login">تسجيل الدخول</button>
       </form>
       <div class="divider"><span data-i18n="or">أو</span></div>
-      <button id="signupBtn" class="secondary-btn" data-i18n="createAccount">إنشاء حساب جديد</button>
+      <button id="signupBtn" class="secondary-btn wide" type="button" data-i18n="createAccount">إنشاء حساب جديد</button>
       <p class="small-note" data-i18n="safetyNote">المنصة أداة تخطيط أولي. أي تعديل إنشائي أو MEP أو متطلبات سلامة يحتاج مراجعة مختص معتمد.</p>
     </div>
   </section>
@@ -53,14 +54,16 @@
         <button class="nav-item active" data-page="dashboard">⌂ <span data-i18n="dashboard">لوحة المشاريع</span></button>
         <button class="nav-item" data-page="project">▣ <span data-i18n="project">المشروع</span></button>
         <button class="nav-item" data-page="floors">▤ <span data-i18n="floors">الطوابق والوحدات</span></button>
-        <button class="nav-item" data-page="files">◫ <span data-i18n="plansFiles">المخططات والملفات</span></button>\n        <button class="nav-item" data-page="plan">✎ <span data-i18n="planWorkspace">مساحة المخطط</span></button>
+        <button class="nav-item" data-page="files">◫ <span data-i18n="plansFiles">المخططات والملفات</span></button>
+        <button class="nav-item" data-page="plan">✎ <span data-i18n="planWorkspace">مساحة المخطط</span></button>
         <button class="nav-item" data-page="condition">✓ <span data-i18n="condition">تقييم الحالة</span></button>
         <button class="nav-item" data-page="scenarios">◇ <span data-i18n="scenarios">سيناريوهات التقسيم</span></button>
         <button class="nav-item" data-page="boq">≡ <span data-i18n="boq">BOQ والتكلفة</span></button>
+        <button class="nav-item" data-page="report">▧ <span data-i18n="report">التقرير</span></button>
       </nav>
       <div class="sidebar-foot">
-        <button id="langBtn" class="ghost-btn wide">EN</button>
-        <button id="logoutBtn" class="ghost-btn wide" data-i18n="logout">تسجيل الخروج</button>
+        <button id="langBtn" class="ghost-btn wide" type="button">EN</button>
+        <button id="logoutBtn" class="ghost-btn wide" type="button" data-i18n="logout">تسجيل الخروج</button>
       </div>
     </aside>
 
@@ -70,14 +73,15 @@
           <span class="eyebrow" data-i18n="workspace">مساحة العمل الشخصية</span>
           <h2 id="pageTitle" data-i18n="dashboard">لوحة المشاريع</h2>
         </div>
-        <div class="project-chip"><span data-i18n="currentProject">المشروع الحالي:</span> <strong id="currentProjectName">—</strong></div>
+        <div class="top-actions">
+          <div class="save-indicator"><span class="live-dot"></span><span data-i18n="cloudSaved">Cloud connected</span></div>
+          <div class="project-chip"><span data-i18n="currentProject">المشروع الحالي:</span> <strong id="currentProjectName">—</strong></div>
+        </div>
       </header>
-
       <div id="pageContent" class="content"></div>
     </main>
   </section>
 
-  <template id="loadingTpl"><div class="loading">Loading…</div></template>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
